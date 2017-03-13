@@ -2,8 +2,7 @@
 /* T1-style calculator: Parse integer arithmetic expressions into executable form. */
 
 /*
-	ÇĞ¹ø : 12121487
-	ÀÌ¸§ : ¹ÚÄ¡±¹
+	github.com/park3745
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,13 +13,13 @@
 enum nodetype { binop, unop, number };
 
 struct node {
-	enum nodetype tag;//³ëµåÀÇ Å¸ÀÔÀ» ³ªÅ¸³»´Â º¯¼ö
-	char bOperator, uOperator;//¿¬»êÀÚ º¯¼ö
-	int num;//ÇÇ¿¬»êÀÚ º¯¼ö
-	struct node *operand, *leftOperand, *rightOperand;//¿ŞÂÊ,¿À¸¥ÂÊ,¶Ç´Â(´ÜÇ×¿¬»êÀÏ°æ¿ì)ÇÏ³ªÀÇ ÇÇ¿¬»êÀÚ¸¦ °¡¸®Å°´Â Æ÷ÀÎÅÍ
+	enum nodetype tag;//ë…¸ë“œì˜ íƒ€ì…ì„ ë‚˜íƒ€ë‚´ëŠ” ë³€ìˆ˜
+	char bOperator, uOperator;//ì—°ì‚°ì ë³€ìˆ˜
+	int num;//í”¼ì—°ì‚°ì ë³€ìˆ˜
+	struct node *operand, *leftOperand, *rightOperand;//ì™¼ìª½,ì˜¤ë¥¸ìª½,ë˜ëŠ”(ë‹¨í•­ì—°ì‚°ì¼ê²½ìš°)í•˜ë‚˜ì˜ í”¼ì—°ì‚°ìë¥¼ ê°€ë¦¬í‚¤ëŠ” í¬ì¸í„°
 };
 
-char savedChar = ' '; //ÀÓ½Ã·Î ÀúÀåÇÏ´Â ¹öÆÛ.
+char savedChar = ' '; //ì„ì‹œë¡œ ì €ì¥í•˜ëŠ” ë²„í¼.
 /***************************************************************************
 Prototypes for functions
 *****************************************************************************/
@@ -35,18 +34,18 @@ char getChar(void) {
 	{
 		c = savedChar;
 		savedChar = ' ';
-	}//ÀÓ½ÃÀúÀå ¹öÆÛ¿¡ ¹®ÀÚ¿­ÀÌ ÀÖÀ¸¸é ±×°ÍÀ» ¹İÈ¯ÇÑ´Ù.
+	}//ì„ì‹œì €ì¥ ë²„í¼ì— ë¬¸ìì—´ì´ ìˆìœ¼ë©´ ê·¸ê²ƒì„ ë°˜í™˜í•œë‹¤.
 	else if (savedChar == EOF)
 		c = (char)(endOfFile);
 	else if (savedChar == EOLN)
 	{
 		c = (char)(endOfLine);
-	}//ÆÄÀÏ,¶Ç´Â ÀÔ·Â¹ŞÀº ¹®ÀåÀÇ ³¡ÀÏ°æ¿ì
+	}//íŒŒì¼,ë˜ëŠ” ì…ë ¥ë°›ì€ ë¬¸ì¥ì˜ ëì¼ê²½ìš°
 	else
 	{
 		c = getchar();
 		printf("%c", c);
-	}//±×°Íµµ ¾Æ´Ñ°æ¿ì ´ÙÀ½ ¹®ÀÚ¿­À» ºÒ·¯¿Â´Ù. getchar()´Â ÇÑ ¹®ÀÚ¿­¸¸ ÀĞ´Â ÇÔ¼ö.
+	}//ê·¸ê²ƒë„ ì•„ë‹Œê²½ìš° ë‹¤ìŒ ë¬¸ìì—´ì„ ë¶ˆëŸ¬ì˜¨ë‹¤. getchar()ëŠ” í•œ ë¬¸ìì—´ë§Œ ì½ëŠ” í•¨ìˆ˜.
 	return(c);
 }
 
@@ -55,8 +54,8 @@ void ungetChar(char c) {
 		savedChar = c;
 	else
 		printf("%c can't unget more than one character at a time", c);
-	//ungetCharÇÔ¼öÀÇ °æ¿ì savedChar·Î ÇÑ ¹®ÀÚ¿­À» ÀúÀåÇØÁÖ´Â ÇÔ¼öÀÌ´Ù. ÀÌ°ÍÀ» ÀÌ¿ëÇØ
-	//ÇÑ¹ø ÀĞÀº µÚ¿¡ ´Ù½Ã ÇØ´ç¹®ÀÚ¿­À» nextChar() ÇØ¾ßÇÏ´Â °æ¿ì°¡ ÀÖÀ¸¸é ºÒ·¯¿Ã ¼ö ÀÖ´Ù.
+	//ungetCharí•¨ìˆ˜ì˜ ê²½ìš° savedCharë¡œ í•œ ë¬¸ìì—´ì„ ì €ì¥í•´ì£¼ëŠ” í•¨ìˆ˜ì´ë‹¤. ì´ê²ƒì„ ì´ìš©í•´
+	//í•œë²ˆ ì½ì€ ë’¤ì— ë‹¤ì‹œ í•´ë‹¹ë¬¸ìì—´ì„ nextChar() í•´ì•¼í•˜ëŠ” ê²½ìš°ê°€ ìˆìœ¼ë©´ ë¶ˆëŸ¬ì˜¬ ìˆ˜ ìˆë‹¤.
 }
 
 char nextChar(void) {
@@ -64,7 +63,7 @@ char nextChar(void) {
 
 	c = getChar();
 	return(c);
-}//´ÙÀ½ ¹®ÀÚ¿­À» ºÒ·¯¿Â´Ù.
+}//ë‹¤ìŒ ë¬¸ìì—´ì„ ë¶ˆëŸ¬ì˜¨ë‹¤.
 
 int charToInt(char c) {
 	int charToINT;
@@ -73,9 +72,9 @@ int charToInt(char c) {
 	{
 		printf("charToint: %c is not a digit", c);
 		charToINT = 0;
-	}//0~9¿¡ ÇØ´çÇÏ´Â ¹®ÀÚ¿­ÀÏ °æ¿ì¿£ int·Î Çüº¯È¯ÀÌ °¡´É.(asciiÀÌ¿ë)
+	}//0~9ì— í•´ë‹¹í•˜ëŠ” ë¬¸ìì—´ì¼ ê²½ìš°ì—” intë¡œ í˜•ë³€í™˜ì´ ê°€ëŠ¥.(asciiì´ìš©)
 	else {
-		charToINT = (int)(c - '0');//'0'ÀÇ ascii°ªÀ» »­À¸·Î½á intÇüº¯È¯.
+		charToINT = (int)(c - '0');//'0'ì˜ asciiê°’ì„ ëºŒìœ¼ë¡œì¨ intí˜•ë³€í™˜.
 	}
 	return (charToINT);
 }
@@ -89,17 +88,17 @@ int getNum(char c) {
 	} while ('0' <= c && c <= '9');
 	ungetChar(c);
 	return (n);
-}//¹®ÀåÀÇ ´ÙÀ½ ¼ıÀÚ¸¦ ºÒ·¯¿À´Â ÇÔ¼ö. ÀÚ¸®¼ö°¡ 1ÀÇÀÚ¸®º¸´Ù Å©´õ¶óµµ ºÒ·¯¿Ã ¼ö ÀÖµµ·Ï ¸¸µå´Â ÇÔ¼ö.
-//´Ù ÀĞÀºµÚ¿¡ ´ÙÀ½ ¹®ÀÚ¸¦ saveChar¿¡ ÀúÀåÇØÁØ´Ù.
+}//ë¬¸ì¥ì˜ ë‹¤ìŒ ìˆ«ìë¥¼ ë¶ˆëŸ¬ì˜¤ëŠ” í•¨ìˆ˜. ìë¦¬ìˆ˜ê°€ 1ì˜ìë¦¬ë³´ë‹¤ í¬ë”ë¼ë„ ë¶ˆëŸ¬ì˜¬ ìˆ˜ ìˆë„ë¡ ë§Œë“œëŠ” í•¨ìˆ˜.
+//ë‹¤ ì½ì€ë’¤ì— ë‹¤ìŒ ë¬¸ìë¥¼ saveCharì— ì €ì¥í•´ì¤€ë‹¤.
 
 
 struct node *binopNode(char opor, struct node *lopand, struct node *ropand)
 {
 	struct node *n;
 	/* do something */
-	//ÀÌÇ× ¿¬»êÀÚÀÇ °æ¿ì ÀÌ ÇÔ¼ö¸¦ ÀÌ¿ëÇØ ³ëµå¸¦ »ı¼ºÇÑ´Ù. 
+	//ì´í•­ ì—°ì‚°ìì˜ ê²½ìš° ì´ í•¨ìˆ˜ë¥¼ ì´ìš©í•´ ë…¸ë“œë¥¼ ìƒì„±í•œë‹¤. 
 	if(lopand==NULL||ropand==NULL)
-		n = NULL;//ÁÂÇ×,¿ìÇ×ÀÌ NULLÀÌ¸é NULLÀ» ¹İÈ¯
+		n = NULL;//ì¢Œí•­,ìš°í•­ì´ NULLì´ë©´ NULLì„ ë°˜í™˜
 	else{
 		n = (struct node *) malloc(sizeof(struct node));
 		n->tag = binop;
@@ -108,14 +107,14 @@ struct node *binopNode(char opor, struct node *lopand, struct node *ropand)
 		n->operand = NULL;
 		n->leftOperand = lopand;
 		n->rightOperand = ropand;
-	}//¾Æ´Ñ°æ¿ì ¸Ş¸ğ¸® ÇÒ´çÈÄ¿¡, ÅÂ±×¿Í °¢ ±¸Á¶Ã¼¾ÈÀÇ º¯¼öµéÀ» Ã¤¿ö³Ö´Â´Ù. 
+	}//ì•„ë‹Œê²½ìš° ë©”ëª¨ë¦¬ í• ë‹¹í›„ì—, íƒœê·¸ì™€ ê° êµ¬ì¡°ì²´ì•ˆì˜ ë³€ìˆ˜ë“¤ì„ ì±„ì›Œë„£ëŠ”ë‹¤. 
 
 	return(n);
 }
 struct node *unopNode(char opor, struct node *opand)
 {
 	struct node *n;
-	//´ÜÇ× ¿¬»ê, ¹®Á¦¿¡¼­ ¿ä±¸ÇÏ´Â ºÎÁ¤ ¿¬»ê¿¡ ´ëÇØ ÇÒ´çÇØÁÖ´Â ÇÔ¼ö
+	//ë‹¨í•­ ì—°ì‚°, ë¬¸ì œì—ì„œ ìš”êµ¬í•˜ëŠ” ë¶€ì • ì—°ì‚°ì— ëŒ€í•´ í• ë‹¹í•´ì£¼ëŠ” í•¨ìˆ˜
 	if (opand == NULL)
 		n = NULL;
 	else {
@@ -132,7 +131,7 @@ struct node *unopNode(char opor, struct node *opand)
 struct node *numberNode(int i)
 {
 	struct node *n;
-	//±×¿Ü¿¡ ¼ıÀÚÀÇ °æ¿ì ÀÌ ÇÔ¼ö¸¦ ÅëÇØ ÇÒ´ç.
+	//ê·¸ì™¸ì— ìˆ«ìì˜ ê²½ìš° ì´ í•¨ìˆ˜ë¥¼ í†µí•´ í• ë‹¹.
 	n = (struct node *)malloc(sizeof(struct node));
 	n->tag = number;
 	n->num = i;
@@ -157,7 +156,7 @@ void ptree(struct node *n, int depth) {
 	default:
 		break;
 	}
-}//Àç±Í¸¦ ÅëÇØ Æ®¸®¸¦ ±×¸®´Â ÇÔ¼ö. ±í¾îÁú¼ö·Ï 2¾¿ Áõ°¡½ÃÅ²´Ù. 
+}//ì¬ê·€ë¥¼ í†µí•´ íŠ¸ë¦¬ë¥¼ ê·¸ë¦¬ëŠ” í•¨ìˆ˜. ê¹Šì–´ì§ˆìˆ˜ë¡ 2ì”© ì¦ê°€ì‹œí‚¨ë‹¤. 
 
 void PrintTree(struct node *n) {
 	printf("Parse Tree:\n");
@@ -172,16 +171,16 @@ struct node *factor(void) {
 
 	/* do something */
 	//factor :: = number | -factor | (expr)
-	//factor´Â Á¤¼ö, ºÎÁ¤, °ıÈ£¸¦ ¹Ş´Â´Ù. 
+	//factorëŠ” ì •ìˆ˜, ë¶€ì •, ê´„í˜¸ë¥¼ ë°›ëŠ”ë‹¤. 
 	if(c <='9'&&'0'<=c)
-		Factor = numberNode(getNum(c));//¼ıÀÚÀÏ°æ¿ì getNumÀ» ÀÌ¿ëÇØ ÇöÀç À§Ä¡¸¦ ¼ıÀÚ°¡ ³¡³ª´Â °÷À¸·Î ÀÌµ¿½ÃÅ°°í, ±×¸¸Å­ÀÇ ¼ö¸¦ ÀÚ¸®¼ö °è»êÇÏ¿© ÀúÀåÇÑ´Ù. 
+		Factor = numberNode(getNum(c));//ìˆ«ìì¼ê²½ìš° getNumì„ ì´ìš©í•´ í˜„ì¬ ìœ„ì¹˜ë¥¼ ìˆ«ìê°€ ëë‚˜ëŠ” ê³³ìœ¼ë¡œ ì´ë™ì‹œí‚¤ê³ , ê·¸ë§Œí¼ì˜ ìˆ˜ë¥¼ ìë¦¬ìˆ˜ ê³„ì‚°í•˜ì—¬ ì €ì¥í•œë‹¤. 
 	else if(c=='!'){
 		Factor = unopNode(c,factor());
 	}
-	else if (c == '(') {//°ıÈ£ÀÎ °æ¿ì, exprÀ» È£ÃâÇÏ°í ´ÙÀ½ ¹®ÀÚ¿­À» °Ë»çÇÑ´Ù. 
+	else if (c == '(') {//ê´„í˜¸ì¸ ê²½ìš°, exprì„ í˜¸ì¶œí•˜ê³  ë‹¤ìŒ ë¬¸ìì—´ì„ ê²€ì‚¬í•œë‹¤. 
 		Factor = expr();
 		c = nextChar();
-		if (c != ')') {//¸¸¾à )°¡ ¾Æ´Ò °æ¿ì, NULLÀ» ¹İÈ¯ÇÑ´Ù. NULLÀº Á¦´ë·Î ÆÄ½ÌÀÌ µÇÁö¾Ê´Â ±¸¹®ÀÌ¶ó´Â ¶æÀÌ´Ù.
+		if (c != ')') {//ë§Œì•½ )ê°€ ì•„ë‹ ê²½ìš°, NULLì„ ë°˜í™˜í•œë‹¤. NULLì€ ì œëŒ€ë¡œ íŒŒì‹±ì´ ë˜ì§€ì•ŠëŠ” êµ¬ë¬¸ì´ë¼ëŠ” ëœ»ì´ë‹¤.
 			Factor = NULL;
 			ungetChar(c);
 		}
@@ -197,20 +196,20 @@ struct node *term(void) {
 	struct node *n, *Term;
 	n = factor();
 	/* do something */
-	//ÆÄ½ÌµÈ nÀÌ NULLÀÌ ¾Æ´Ï¶ó¸é, Áï Á¦´ë·Î ÆÄ½ÌÀÌ µÇ¾ú´Ù¸é ´ÙÀ½ ¹®ÀÚ¿­À» ºñ±³ÇÑ´Ù. 
+	//íŒŒì‹±ëœ nì´ NULLì´ ì•„ë‹ˆë¼ë©´, ì¦‰ ì œëŒ€ë¡œ íŒŒì‹±ì´ ë˜ì—ˆë‹¤ë©´ ë‹¤ìŒ ë¬¸ìì—´ì„ ë¹„êµí•œë‹¤. 
 	//term ::= factor | factor * term | factor / term
 	if(n!=NULL){
 		c = nextChar();
-		if(c == '*' || c=='/'){//ÁÂÇ×¿¡ ÀÌÀü¿¡ È£ÃâÇÑ factor, ¿ìÇ×¿¡ termÀÌ Àç±ÍÈ£ÃâµÇµµ·Ï ÀÌÇ×¿¬»êÀÚ ³ëµå¸¦ ¸¸µé¾îÁØ´Ù. 
-			Term = binopNode(c,n,term());//*,/¿¡ ´õ ³ôÀº ¿ì¼±¼øÀ§¸¦ ºÎ¿©ÇÔ.
+		if(c == '*' || c=='/'){//ì¢Œí•­ì— ì´ì „ì— í˜¸ì¶œí•œ factor, ìš°í•­ì— termì´ ì¬ê·€í˜¸ì¶œë˜ë„ë¡ ì´í•­ì—°ì‚°ì ë…¸ë“œë¥¼ ë§Œë“¤ì–´ì¤€ë‹¤. 
+			Term = binopNode(c,n,term());//*,/ì— ë” ë†’ì€ ìš°ì„ ìˆœìœ„ë¥¼ ë¶€ì—¬í•¨.
 		}
-		else{//´ÙÀ½ ¹®ÀÚ¿­ÀÌ *,/ÀÌ ¾Æ´Ò °æ¿ì factor ±×´ë·Î¸¦ ¹İÈ¯ÇÏ±â À§ÇØ ungetChar()·Î ´ÙÀ½ ¹®ÀÚ¿­À» µÇµ¹·ÁÁØ´Ù. 
+		else{//ë‹¤ìŒ ë¬¸ìì—´ì´ *,/ì´ ì•„ë‹ ê²½ìš° factor ê·¸ëŒ€ë¡œë¥¼ ë°˜í™˜í•˜ê¸° ìœ„í•´ ungetChar()ë¡œ ë‹¤ìŒ ë¬¸ìì—´ì„ ë˜ëŒë ¤ì¤€ë‹¤. 
 			ungetChar(c);
 			Term = n;
 		}
 	}
 	else
-		Term = n;//NULL±×´ë·Î ¹İÈ¯
+		Term = n;//NULLê·¸ëŒ€ë¡œ ë°˜í™˜
 
 	return(Term);
 }
@@ -222,11 +221,11 @@ struct node *expr(void) {
 	n = term();
 	
 	/* do something */
-	//¸¶Âù°¡Áö·Î, ÆÄ½ÌµÈ termÀÌ NULLÀÌ ¾Æ´Ï¶ó¸é ´ÙÀ½ ¹®ÀÚ¿­À» ºñ±³.
+	//ë§ˆì°¬ê°€ì§€ë¡œ, íŒŒì‹±ëœ termì´ NULLì´ ì•„ë‹ˆë¼ë©´ ë‹¤ìŒ ë¬¸ìì—´ì„ ë¹„êµ.
 	//expr ::= term | term + expr | term - expr
 	if(n != NULL){
 		c = nextChar();
-		if(c=='+'||c=='-'){//ÀÌ¹ø¿£ ¿ìÇ×¿¡ exprÀ» È£Ãâ.
+		if(c=='+'||c=='-'){//ì´ë²ˆì—” ìš°í•­ì— exprì„ í˜¸ì¶œ.
 			Expr = binopNode(c,n,expr());
 		}
 		else{
@@ -239,9 +238,9 @@ struct node *expr(void) {
 
 	return(Expr);
 }
-int eval(struct node *n) {//°è»êÇÏ´Â ÇÔ¼ö. ³ëµåÀÇ ¿À¸¥ÂÊ,¿ŞÂÊÀ» µû¶ó¼­ °è»êÇØ³ª°£´Ù. 
+int eval(struct node *n) {//ê³„ì‚°í•˜ëŠ” í•¨ìˆ˜. ë…¸ë“œì˜ ì˜¤ë¥¸ìª½,ì™¼ìª½ì„ ë”°ë¼ì„œ ê³„ì‚°í•´ë‚˜ê°„ë‹¤. 
 	int op1, op2, EVAL;
-	//tag¸¦ ÀÌ¿ëÇØ È¿À²ÀûÀ¸·Î °è»ê
+	//tagë¥¼ ì´ìš©í•´ íš¨ìœ¨ì ìœ¼ë¡œ ê³„ì‚°
 	switch (n->tag) {
 	case binop:
 		op1 = eval(n->leftOperand);
