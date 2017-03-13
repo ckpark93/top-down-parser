@@ -1,1 +1,1 @@
-# syntax-paser
+# syntax-parser
